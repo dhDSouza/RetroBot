@@ -1,8 +1,11 @@
 import discord
+from discord import Message
+
 from dotenv import load_dotenv
 import os
 
-from commands.achievements import register_ra_user, fetch_user_achievements
+from commands.achievements import fetch_user_achievements
+from commands.register import registrar
 from database.db import create_tables
 
 load_dotenv()
@@ -17,21 +20,30 @@ client = discord.Client(intents=intents)
 async def on_ready():
     print(f'{client.user} está pronto!')
 
-    create_tables()
+    await create_tables()
 
 @client.event
-async def on_message(message):
+async def on_message(message: Message):
+    if not message.content.startswith("!"):
+        return
     if message.author == client.user:
         return
+    
+    arguments = message.content.split(" ")
+    try:    
+        command = arguments[0]
+        user_message = arguments[1]
+    except IndexError:
+        await message.channel.send("Por favor, forneça o nome de usuário. Exemplo: `!registrar seu_usuario`.")
+        return
 
-    if message.content.startswith('!registrar'):
-        try:
-            ra_username = message.content.split(" ")[1]
-            await register_ra_user(message, ra_username)
-        except IndexError:
-            await message.channel.send("Por favor, forneça o nome de usuário. Exemplo: `!registrar seu_usuario`.")
-
-    elif message.content.startswith('!conquistas'):
+    if command == "!registrar":
+        await registrar(message, user_message)
+        return
+    elif command == "!conquistas":
         await fetch_user_achievements(message)
+        return
+    
+    return
 
 client.run(DISCORD_TOKEN)
