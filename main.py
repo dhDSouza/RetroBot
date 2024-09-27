@@ -20,7 +20,7 @@ client = discord.Client(intents=intents)
 async def on_ready():
     print(f'{client.user} está pronto!')
 
-    await create_tables()
+    create_tables()
 
 @client.event
 async def on_message(message: Message):
@@ -30,16 +30,14 @@ async def on_message(message: Message):
         return
     
     arguments = message.content.split(" ")
-    try:    
-        command = arguments[0]
-        user_message = arguments[1]
-    except IndexError:
-        await message.channel.send("Por favor, forneça o nome de usuário. Exemplo: `!registrar seu_usuario`.")
-        return
+    command = arguments[0]
 
     if command == "!registrar":
-        await registrar(message, user_message)
-        return
+        try:
+            user_message = arguments[1]
+            await registrar(message, user_message)
+        except:
+            return
     elif command == "!conquistas":
         await fetch_user_achievements(message)
         return
