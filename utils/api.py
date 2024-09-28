@@ -17,7 +17,7 @@ def get_recent_achievements(username):
 
 # Função para obter todos os consoles disponíveis
 def get_consoles():
-    url = f"https://retroachievements.org/API/API_GetConsoleIDs.php?y={RA_API_KEY}"
+    url = f"https://retroachievements.org/API/API_GetConsoleIDs.php?y={RA_API_KEY}&a=1"
     try:
         response = requests.get(url)
         response.raise_for_status()
@@ -29,7 +29,7 @@ def get_consoles():
 
 # Função para obter jogos de um console específico
 def get_games_for_console(console_id):
-    url = f"https://retroachievements.org/API/API_GetGameList.php?y={RA_API_KEY}&i={console_id}"
+    url = f"https://retroachievements.org/API/API_GetGameList.php?y={RA_API_KEY}&i={console_id}&f=1"
     try:
         response = requests.get(url)
         response.raise_for_status()
