@@ -13,3 +13,15 @@ def get_recent_achievements(username):
     except Exception as e:
         print(f"Erro ao buscar conquistas: {e}")
         return None
+
+# Função para obter todos os consoles disponíveis
+def get_consoles():
+    url = f"https://retroachievements.org/API/API_GetConsoleIDs.php?y={RA_API_KEY}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        
+        return response.json() if response.status_code == 200 else None
+    except Exception as e:
+        print(f"Erro ao buscar consoles: {e}")
+        return None
