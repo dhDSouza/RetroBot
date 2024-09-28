@@ -46,7 +46,7 @@ async def send_random_challenge(message):
             description=f"Console sorteado: **{challenge['console']}**",
             color=discord.Color.green()
         )
-        embed.thumbnail(url=challenge['console_image_url'])
+        embed.set_thumbnail(url=challenge['console_image_url'])
         embed.add_field(name="Jogo sorteado", value=challenge['game'], inline=False)
         embed.set_image(url=challenge['game_image_url'])
         await message.channel.send(embed=embed)
