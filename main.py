@@ -4,7 +4,7 @@ from discord import Message
 from dotenv import load_dotenv
 import os
 
-from commands.achievements import fetch_user_achievements
+from commands.achievements import fetch_user_achievements, send_random_challenge
 from commands.register import registrar
 from database.db import create_tables
 
@@ -40,6 +40,9 @@ async def on_message(message: Message):
             return
     elif command == "!conquistas":
         await fetch_user_achievements(message)
+        return
+    elif command == "!desafio":
+        await send_random_challenge(message)
         return
     
     return
