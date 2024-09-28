@@ -1,7 +1,7 @@
 import discord
 
 from database.db import register_user, get_ra_username
-from utils.api import get_recent_achievements
+from utils.api import get_recent_achievements, get_random_challenge
 
 async def register_ra_user(message, ra_username):
     register_user(str(message.author.id), ra_username)
@@ -36,3 +36,19 @@ async def fetch_user_achievements(message):
             await message.channel.send(f"Não consegui buscar as conquistas de `{ra_username}`.")
     else:
         await message.channel.send("Você ainda não registrou seu usuário. Use o comando `!registrar <seu_usuario>` para registrar.")
+
+async def send_random_challenge(message):
+    challenge = get_random_challenge()
+
+    if challenge:
+        embed = discord.Embed(
+            title="🎮 Desafio RetroAchievements!",
+            description=f"Console sorteado: **{challenge['console']}**",
+            color=discord.Color.green()
+        )
+        embed.thumbnail(url=challenge['console_image_url'])
+        embed.add_field(name="Jogo sorteado", value=challenge['game'], inline=False)
+        embed.set_image(url=challenge['game_image_url'])
+        await message.channel.send(embed=embed)
+    else:
+        await message.channel.send("Não consegui sortear um desafio no momento. Tente novamente mais tarde.")
