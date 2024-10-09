@@ -24,12 +24,11 @@ async def fetch_user_achievements(message):
                     color = discord.Color.gold() if hardcore_status == "Hardcore" else discord.Color.dark_gray()
                 )
                 
-                embed.set_thumbnail(url=f"https://retroachievements.org{ach['GameIcon']}")
-                embed.set_image(url=f"https://retroachievements.org{ach['BadgeURL']}")
-                embed.add_field(name="Game", value=ach['GameTitle'], inline=True)
-                embed.add_field(name="Points", value=f"{ach['Points']} ({ach['TrueRatio']})", inline=False)
-                embed.add_field(name="Mode", value=hardcore_status, inline=True)
-                embed.add_field(name="Unloked in", value=ach['Date'], inline=False)
+                embed.set_image(url = game_icon_url)
+                embed.set_thumbnail(url = achievement_icon_url)
+                embed.add_field(name = "Points", value = f"{ach['Points']} ({ach['TrueRatio']})", inline = False)
+                embed.add_field(name = "Unloked in", value = ach['Date'], inline = False)
+                embed.add_field(name = "Game", value = ach['GameTitle'], inline = True)
                 
                 await message.channel.send(embed=embed)
         else:
