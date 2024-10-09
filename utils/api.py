@@ -67,3 +67,22 @@ def get_random_challenge():
             return None
     else:
         return None
+    
+# Função para consultar o progresso do jogador em um jogo
+def fetch_player_progress(username, game_id):
+    url = f"https://retroachievements.org/API/API_GetUserProgress.php?y={RA_API_KEY}&u={username}&i={game_id}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        data = response.json()
+
+        if str(game_id) in data:
+            return data[str(game_id)]
+        else:
+            return None
+        
+    except Exception as e:
+        print(f"Erro ao consultar progresso do jogador {username}: {e}")
+        return None
