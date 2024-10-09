@@ -1,6 +1,6 @@
 # RetroBot - Bot de Conquistas RetroAchievements para Discord
 
-RetroBot é um bot para Discord que permite que os membros de um servidor de Discord registrem seus nomes de usuário da plataforma RetroAchievements, acompanhem suas conquistas de jogos retrô.
+RetroBot é um bot para Discord que permite que os membros de um servidor registrem seus nomes de usuário da plataforma RetroAchievements e acompanhem suas conquistas de jogos retrô.
 
 ## Funcionalidades
 
@@ -26,27 +26,20 @@ Além disso, é recomendável usar um ambiente virtual para gerenciar suas depen
     cd RetroBot
     ```
 
-2. Crie e ative um ambiente virtual (opcional, mas recomendado):
-
-    No Linux/macOS:
+2. Instale o `pipenv` se ainda não estiver instalado:
 
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate
+    pip install pipenv
     ```
 
-    No Windows:
+3. Crie e ative o ambiente virtual com `pipenv`:
 
     ```bash
-    python -m venv venv
-    venv\Scripts\activate
+    pipenv install
+    pipenv shell
     ```
 
-3. Instale as dependências do projeto:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
+    O comando acima cria o ambiente virtual e instala todas as dependências listadas no `Pipfile`.
 
 4. Crie um arquivo `.env` na raiz do projeto e adicione suas variáveis de ambiente. Este arquivo armazena o token do Discord e a chave da API do RetroAchievements:
 
@@ -66,7 +59,7 @@ Além disso, é recomendável usar um ambiente virtual para gerenciar suas depen
     Para iniciar o bot, rode o seguinte comando:
 
     ```bash
-    python3 main.py
+    pipenv run start
     ```
 
     Você verá uma mensagem no terminal confirmando que o bot está pronto:
