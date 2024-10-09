@@ -39,8 +39,6 @@ def get_games_for_console(console_id):
         print(f"Erro ao buscar jogos: {e}")
         return None
 
-import random
-
 # Função para sortear um console e um jogo daquele console
 def get_random_challenge():
     
