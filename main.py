@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from commands.achievements import fetch_user_achievements
 from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge
 from commands.register import registrar
+from commands.profile import show_user_profile
 from database.db import create_tables
 
 load_dotenv()
@@ -59,6 +60,9 @@ async def on_message(message: Message):
         current_challenge_exists = await check_current_challenge(message)
         if not current_challenge_exists:
             await send_random_challenge(message)
+        return
+    elif command == "!perfil":
+        await show_user_profile(message, message.author)
         return
     
     return
