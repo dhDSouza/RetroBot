@@ -8,6 +8,7 @@ from commands.achievements import fetch_user_achievements
 from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge
 from commands.register import registrar
 from commands.profile import show_user_profile
+from commands.activity import user_activity
 from database.db import create_tables
 
 load_dotenv()
@@ -63,6 +64,9 @@ async def on_message(message: Message):
         return
     elif command == "!perfil":
         await show_user_profile(message, message.author)
+        return
+    elif command == "!atividade":
+        await user_activity(message, message.author)
         return
     
     return
