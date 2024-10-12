@@ -89,7 +89,20 @@ def fetch_player_progress(username, game_id):
     
 # Função para buscar informações sobre o perfil do jogador
 def fetch_user_profile(username):
-    url = f'https://retroachievements.org/API/API_GetUserProfile.php?y={RA_API_KEY}&u={username}'
+    url = f"https://retroachievements.org/API/API_GetUserProfile.php?y={RA_API_KEY}&u={username}"
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+        return response.json() if response.status_code == 200 else None
+    except Exception as e:
+        print(f"Erro ao buscar informações do perfil: {e}")
+        return None
+    
+# Função pra consultar o último jogo jogado pelo jogador
+def get_last_game_played(username):
+    url = f"https://retroachievements.org/API/API_GetUserRecentlyPlayedGames.php?y={RA_API_KEY}&u={username}&c=1"
 
     try:
         response = requests.get(url)
