@@ -2,6 +2,7 @@ import discord
 
 from database.db import get_ra_username
 from utils.api import fetch_user_profile
+from utils.date import convert_utc_to_brt
 
 async def show_user_profile(message, discord_user):
     ra_username = get_ra_username(discord_user.id)
@@ -20,7 +21,7 @@ async def show_user_profile(message, discord_user):
         )
         embed.set_thumbnail(url = f"https://retroachievements.org{profile['UserPic']}")
         embed.add_field(name = "Points", value = f"{profile['TotalPoints']} ({profile['TotalTruePoints']})", inline = True)
-        embed.add_field(name = "Member Since", value = f"{profile['MemberSince']}", inline = True)
+        embed.add_field(name = "Member Since", value = f"{convert_utc_to_brt(profile['MemberSince'])}", inline = True)
 
         if profile.get("Motto"):
             embed.add_field(name = "Motto", value = profile['Motto'], inline = False)
