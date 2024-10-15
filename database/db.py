@@ -25,7 +25,14 @@ def create_tables():
                     start_date TEXT,
                     end_date TEXT,
                     is_open INTEGER DEFAULT 1
-                )''') 
+                )''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS achievements (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 user_id TEXT,
+                 achievement_id INTEGER,
+                 FOREIGN KEY (user_id) REFERENCES users(id)
+            )''')
 
     conn.commit()
     conn.close()
@@ -132,3 +139,29 @@ def finish_challenge(id):
     conn.close()
     
     return rows_affected > 0
+
+def save_achievement(user_id, achievement_id):
+    conn = connect_db()
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM achievements WHERE user_id = ? AND achievement_id = ?", (user_id, achievement_id))
+    exists = c.fetchone()
+
+    if exists is None:
+        c.execute('INSERT INTO achievements (user_id, achievement_id) VALUES (?, ?)', (user_id, achievement_id))
+        conn.commit()
+    else:
+        print(f"A conquista {achievement_id} já está registrada para o usuário {user_id}.")
+
+    conn.close()
+
+def get_user_achievements(user_id):
+    conn = connect_db()
+    c = conn.cursor()
+
+    c.execute("SELECT achievement_id FROM achievements WHERE user_id = ?", (user_id,))
+    rows = c.fetchall()
+
+    conn.close()
+
+    return [row[0] for row in rows]
