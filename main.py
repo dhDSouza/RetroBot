@@ -4,7 +4,7 @@ import asyncio
 
 from discord import Message
 from dotenv import load_dotenv
-from commands.achievements import fetch_user_achievements
+from commands.achievements import fetch_user_achievements, get_new_achievements
 from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge
 from commands.register import registrar
 from commands.profile import show_user_profile
@@ -36,7 +36,19 @@ async def on_ready():
         else:
             print("Canal não encontrado. Verifique o nome do canal.")
 
-    client.loop.create_task(check_challenge())  
+    client.loop.create_task(check_challenge())
+
+    # Função para detectar novas conquistas a cada 1 hora.
+    async def check_for_new_achievements():
+        channel = discord.utils.get(client.get_all_channels(), name=CHANNEL)
+        if channel:
+            while True:
+                await get_new_achievements(channel)
+                await asyncio.sleep(3600)
+        else:
+            print("Canal não encontrado. Verifique o nome do canal.")
+
+    client.loop.create_task(check_for_new_achievements())
 
 @client.event
 async def on_message(message: Message):
