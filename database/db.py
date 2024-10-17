@@ -140,6 +140,29 @@ def finish_challenge(id):
     
     return rows_affected > 0
 
+def update_challenge(new_challenge):
+    conn = connect_db()
+    c = conn.cursor()
+    
+    current_challenge = get_current_challenge()
+
+    if current_challenge:
+        c.execute('''UPDATE challenges SET console_name = ?, game_name = ?, game_id = ?, console_image_url = ?, game_image_url = ?, start_date = ?, end_date = ?, is_open = ? WHERE id = ?''',
+                  (new_challenge['console'], new_challenge['game'], new_challenge['game_id'], new_challenge['console_image_url'], new_challenge['game_image_url'], datetime.now(), datetime.now() + timedelta(days=7), 1, current_challenge['id']))
+        
+        conn.commit()
+        
+        if c.rowcount > 0:
+            conn.close()
+            return True
+        else:
+            conn.close()
+            return False
+    else:
+        print("Não há um desafio ativo para ser atualizado.")
+        conn.close()
+        return False
+        
 def save_achievement(user_id, achievement_id):
     conn = connect_db()
     c = conn.cursor()
