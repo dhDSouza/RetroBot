@@ -1,8 +1,6 @@
 import discord
 import os
-import asyncio
-
-from discord import Message
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from commands.achievements import fetch_user_achievements, get_new_achievements
 from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge
@@ -18,69 +16,82 @@ CHANNEL = os.getenv('CHANNEL')
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
 
-@client.event
+# Usando o commands.Bot com o prefixo "!"
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
 async def on_ready():
-    print(f'{client.user} está pronto!')
-
+    print(f'{bot.user} está pronto!')
     create_tables()
-
-    # Função para verificar a cada 15 minutos se o desafio foi finalizado.
-    async def check_challenge():
-        channel = discord.utils.get(client.get_all_channels(), name=CHANNEL)
-        if channel:
-            while True:
-                await check_challenge_progress(channel)
-                await asyncio.sleep(900)
-        else:
-            print("Canal não encontrado. Verifique o nome do canal.")
-
-    client.loop.create_task(check_challenge())
-
-    # Função para detectar novas conquistas a cada 1 hora.
-    async def check_for_new_achievements():
-        channel = discord.utils.get(client.get_all_channels(), name=CHANNEL)
-        if channel:
-            while True:
-                await get_new_achievements(channel)
-                await asyncio.sleep(3600)
-        else:
-            print("Canal não encontrado. Verifique o nome do canal.")
-
-    client.loop.create_task(check_for_new_achievements())
-
-@client.event
-async def on_message(message: Message):
-    if not message.content.startswith("!"):
-        return
-    if message.author == client.user:
-        return
     
-    arguments = message.content.split(" ")
-    command = arguments[0]
+    # Iniciar as tarefas recorrentes
+    check_challenge.start()
+    check_for_new_achievements.start()
 
-    if command == "!registrar":
-        try:
-            user_message = arguments[1]
-            await registrar(message, user_message)
-        except:
-            return
-    elif command == "!conquistas":
-        await fetch_user_achievements(message)
-        return
-    elif command == "!desafio":
-        current_challenge_exists = await check_current_challenge(message)
+def get_channel():
+    """Função utilitária para obter o canal configurado."""
+    channel = discord.utils.get(bot.get_all_channels(), name=CHANNEL)
+    if channel:
+        return channel
+    else:
+        print("Canal não encontrado. Verifique o nome do canal.")
+        return None
+
+@tasks.loop(minutes=15)
+async def check_challenge():
+    channel = get_channel()
+    if channel:
+        await check_challenge_progress(channel)
+
+@tasks.loop(hours=1)
+async def check_for_new_achievements():
+    channel = get_channel()
+    if channel:
+        await get_new_achievements(channel)
+
+# Definindo comandos utilizando o @bot.command
+@bot.command(name="registrar")
+async def registrar_comando(ctx, *, user_message: str):
+    try:
+        await registrar(ctx.message, user_message)
+    except Exception as e:
+        print(f"Erro ao registrar: {e}")
+        await ctx.send("Erro ao processar o comando de registro. Tente novamente.")
+
+@bot.command(name="conquistas")
+async def conquistas_comando(ctx):
+    try:
+        await fetch_user_achievements(ctx.message)
+    except Exception as e:
+        print(f"Erro ao buscar conquistas: {e}")
+        await ctx.send("Erro ao buscar suas conquistas.")
+
+@bot.command(name="desafio")
+async def desafio_comando(ctx):
+    try:
+        current_challenge_exists = await check_current_challenge(ctx.message)
         if not current_challenge_exists:
-            await send_random_challenge(message)
-        return
-    elif command == "!perfil":
-        await show_user_profile(message, message.author)
-        return
-    elif command == "!atividade":
-        await user_activity(message, message.author)
-        return
-    
-    return
+            await send_random_challenge(ctx.message)
+    except Exception as e:
+        print(f"Erro ao iniciar desafio: {e}")
+        await ctx.send("Erro ao iniciar um desafio.")
 
-client.run(DISCORD_TOKEN)
+@bot.command(name="perfil")
+async def perfil_comando(ctx):
+    try:
+        await show_user_profile(ctx.message, ctx.author)
+    except Exception as e:
+        print(f"Erro ao exibir perfil: {e}")
+        await ctx.send("Erro ao exibir seu perfil.")
+
+@bot.command(name="atividade")
+async def atividade_comando(ctx):
+    try:
+        await user_activity(ctx.message, ctx.author)
+    except Exception as e:
+        print(f"Erro ao buscar atividade: {e}")
+        await ctx.send("Erro ao buscar sua atividade.")
+
+# Iniciar o bot
+bot.run(DISCORD_TOKEN)
