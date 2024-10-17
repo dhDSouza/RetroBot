@@ -3,7 +3,7 @@ import os
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from commands.achievements import fetch_user_achievements, get_new_achievements
-from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge
+from commands.challenge import send_random_challenge, check_challenge_progress, check_current_challenge, updated_challenge
 from commands.register import registrar
 from commands.profile import show_user_profile
 from commands.activity import user_activity
@@ -77,6 +77,14 @@ async def desafio_comando(ctx):
         print(f"Erro ao iniciar desafio: {e}")
         await ctx.send("Erro ao iniciar um desafio.")
 
+@bot.command(name="atualizar_desafio")
+async def atualizar_desafio_comando(ctx):
+    try:
+        await updated_challenge(ctx.message)
+    except Exception as e:
+        print(f"Erro ao atualizar desafio: {e}")
+        await ctx.send("Erro ao atualizar o desafio.")
+
 @bot.command(name="perfil")
 async def perfil_comando(ctx):
     try:
@@ -92,6 +100,23 @@ async def atividade_comando(ctx):
     except Exception as e:
         print(f"Erro ao buscar atividade: {e}")
         await ctx.send("Erro ao buscar sua atividade.")
+
+@bot.command()
+async def ajuda(ctx):
+    embed = discord.Embed(
+        title = "**Comandos disponíveis**",
+        description = "Aqui estão os comandos que você pode utilizar:",
+        color = discord.Color.blue()
+    )
+
+    embed.add_field(name = "**!registrar** *ra_username*", value = "Registra o seu usário do RA, conforme o fornecido.", inline = False)
+    embed.add_field(name = "**!conquistas**", value = "Exibe as conquistas do usuário nas últimas 24 horas.", inline = False)
+    embed.add_field(name = "**!desafio**", value = "Sorteia um desafio para os usuário, caso não houver um desafio ativo.", inline = False)
+    embed.add_field(name = "**!atualizar_desafio**", value = "Altera o desafio atual", inline = False)
+    embed.add_field(name = "**!perfil**", value = "Exibe o perfil do usuário no RA.", inline = False)
+    embed.add_field(name = "**!atividade**", value = "Exibe a última atividade do usuário", inline = False)
+    
+    await ctx.send(embed = embed)
 
 # Iniciar o bot
 bot.run(DISCORD_TOKEN)
