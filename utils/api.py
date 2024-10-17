@@ -21,7 +21,7 @@ def get_recent_achievements(username):
 
 # Função para obter todos os consoles disponíveis
 def get_consoles():
-    url = f"https://retroachievements.org/API/API_GetConsoleIDs.php?y={RA_API_KEY}&a=1"
+    url = f"https://retroachievements.org/API/API_GetConsoleIDs.php?y={RA_API_KEY}&g=1"
     try:
         response = requests.get(url)
         response.raise_for_status()
