@@ -2,7 +2,7 @@ import discord
 
 from datetime import datetime
 from utils.api import get_random_challenge, fetch_player_progress
-from database.db import add_challenge, get_current_challenge, check_challenge_status, get_all_users, finish_challenge
+from database.db import add_challenge, get_current_challenge, check_challenge_status, get_all_users, finish_challenge, update_challenge
 
 async def send_random_challenge(message):
     challenge = get_random_challenge()
@@ -104,3 +104,23 @@ async def check_challenge_progress(channel):
         await channel.send(embed=embed)
 
         await finish_challenge(challenge['id'])
+
+async def updated_challenge(message):
+    new_challenge = get_random_challenge()
+    updated = update_challenge(new_challenge)
+
+    if updated:
+        embed = discord.Embed(
+            title = "⚙️ Desafio Atualizado!",
+            description = "Um novo desafio foi gerado com sucesso! Confira as informações atualizadas abaixo.",
+            color = discord.Color.blue()
+        )
+        # Pega o novo desafio para exibir informações atualizadas
+        new_challenge = get_current_challenge()
+        embed.add_field(name = "Console", value = new_challenge['console_name'], inline=False)
+        embed.add_field(name = "Jogo", value = new_challenge['game_name'], inline=False)
+        embed.set_thumbnail(url = new_challenge['console_image_url'])
+        embed.set_image(url = new_challenge['game_image_url'])
+        await message.channel.send(embed = embed)
+    else:
+        await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
