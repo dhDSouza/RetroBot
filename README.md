@@ -4,25 +4,27 @@ RetroBot é um bot para Discord que permite que os membros de um servidor regist
 
 ## Funcionalidades
 
-- Comando `!registrar <seu_usuario_retroachievements>` para registrar o seu nome de usuário do RetroAchievements.
-- Comando `!conquistas` para buscar as conquistas mais recentes do RetroAchievements.
-  
+- Registrar um usuário do RetroAchievements no servidor Discord.
+- Buscar as conquistas mais recentes de um usuário do RetroAchievements.
+- Sortear um desafio aleatório de jogo retrô.
+- Atualizar o desafio caso não tenha gostado do sorteado.
+- Exibir perfil do usário no RetroAchievements.
+- Exibir a atividade dos jogadores nos jogos retrô.
+
 ## Pré-requisitos
 
 Antes de começar, você precisará das seguintes ferramentas instaladas/configuradas:
 
-- [Python 3.8+](https://www.python.org/downloads/)
+- [Python 3.10+](https://www.python.org/downloads/)
 - [Discord Account & Bot Token](https://discord.com/developers/applications)
 - Uma conta no [RetroAchievements](https://retroachievements.org/)
-
-Além disso, é recomendável usar um ambiente virtual para gerenciar suas dependências.
 
 ## Instalação
 
 1. Clone este repositório para sua máquina local:
 
     ```bash
-    git clone https://github.com/seuusuario/RetroBot.git
+    git clone https://github.com/dhDSouza/RetroBot.git
     cd RetroBot
     ```
 
@@ -39,51 +41,72 @@ Além disso, é recomendável usar um ambiente virtual para gerenciar suas depen
     pipenv shell
     ```
 
-    O comando acima cria o ambiente virtual e instala todas as dependências listadas no `Pipfile`.
-
-4. Crie um arquivo `.env` na raiz do projeto e adicione suas variáveis de ambiente. Este arquivo armazena o token do Discord e a chave da API do RetroAchievements:
+4. Crie um arquivo `.env` na raiz do projeto e adicione suas variáveis de ambiente:
 
     ```bash
     DISCORD_TOKEN=seu_token_do_discord
     RA_API_KEY=sua_chave_da_api_do_retroachievements
+    CHANNEL=seu_canal_do_discord
     ```
-
-5. Inicialize o banco de dados SQLite:
-
-    O bot irá criar o banco automaticamente ao iniciar. Certifique-se de que a função `create_tables` está sendo chamada no evento `on_ready` no arquivo `main.py`. Nenhuma ação adicional é necessária.
 
 ## Como Usar
 
-1. **Iniciar o bot**:
+**Iniciar o bot**:
 
-    Para iniciar o bot, rode o seguinte comando:
+Para iniciar o bot, rode o seguinte comando:
 
-    ```bash
-    pipenv run start
-    ```
+```bash
+pipenv run start
+```
 
-    Você verá uma mensagem no terminal confirmando que o bot está pronto:
+## Comandos Disponíveis
 
-    ```bash
-    RetroBot#7626 está pronto!
-    ```
+- **`!registrar <username do RetroAchievements>`**: Registra o seu nome de usuário do RetroAchievements para acompanhar suas conquistas.
+- **`!conquistas`**: Exibe as conquistas do usuário registrado nas últimas 24 horas.
+- **`!desafio`**: Sorteia um novo desafio de jogo retrô e exibe os detalhes.
+- **`!atualizar_desafio`**: Atualiza o desafio atual com um novo, caso o usuário deseje.
+- **`!perfil`**: Exibe o perfil do usuário.
+- **`!atividade`**: Exibe a última atividade do usuário.
+- **`!ajuda`**: Exibe a lista de comandos disponíveis e uma breve descrição de cada um.
 
-2. **Comandos**:
+## Documentação e Políticas
 
-    Dentro do servidor Discord, os membros podem digitar o comando:
-
-    ```bash
-    !registrar <seu_usuario_retroachievements>
-    ```
-
-    O bot registrará o seu usuário do RetroAchievements.
-
-    ```bash
-    !conquistas
-    ```
-
-    O bot responderá com as conquistas mais recentes do usuário especificado.
+- [Termos de Uso](./TERMS_OF_USE.md)
+- [Política de Privacidade](./PRIVACY_POLICY.md)
 
 ## Licença
 
-Este projeto é licenciado sob os termos da [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+Este projeto é licenciado sob os termos da [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). Você é livre para usar, modificar e distribuir o software, desde que mantenha os créditos e a licença original.
+
+## Referência ao RetroAchievements
+
+O RetroBot utiliza a API do [RetroAchievements](https://retroachievements.org/) para obter dados sobre conquistas e atividades de jogos retrô. Agradecemos ao RetroAchievements por disponibilizar a API e permitir que a comunidade desenvolva ferramentas como esta.
+
+## Como Contribuir
+
+Contribuições são sempre bem-vindas! Siga os passos abaixo para contribuir:
+
+1. Faça um fork deste repositório.
+2. Crie uma nova branch para sua feature ou correção:
+
+    ```bash
+    git checkout -b minha-feature
+    ```
+
+3. Faça as modificações desejadas e commit:
+
+    ```bash
+    git commit -m "Adiciona nova funcionalidade"
+    ```
+
+4. Envie para o seu fork:
+
+    ```bash
+    git push origin minha-feature
+    ```
+
+5. Abra um Pull Request descrevendo as mudanças feitas.
+
+## Contato
+
+Se você tiver dúvidas, sugestões ou problemas, fique à vontade para abrir um *issue* ou entrar em contato diretamente através do [dhs.danielsouza@gmail.com](mailto:dhs.danielsouza@gmail.com).
