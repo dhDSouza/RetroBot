@@ -2,6 +2,10 @@ import requests
 import os
 import random
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 RA_API_KEY = os.getenv('RA_API_KEY')
 
 # Função para buscar as conquistas recentes via API do RetroAchievements
