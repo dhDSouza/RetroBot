@@ -19,6 +19,7 @@ async def send_random_challenge(message):
 
         embed = discord.Embed(
             title="🎮 Desafio RetroAchievements!",
+            url=f"https://retroachievements.org/game/{challenge['game_id']}",
             description=f"Console sorteado: **{challenge['console']}**",
             color=discord.Color.green()
         )
@@ -42,7 +43,8 @@ async def check_current_challenge(message):
 
         embed = discord.Embed(
             title="🎮 Desafio!",
-            description=f"O desafio atual é para o jogo **{challenge['game_name']}** no console **{challenge['console_name']}**!",
+            url=f"https://retroachievements.org/game/{challenge['game_id']}",
+            description=f"O desafio atual é o jogo **{challenge['game_name']}** do console **{challenge['console_name']}**!",
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=challenge['console_image_url'])
@@ -78,10 +80,10 @@ async def check_challenge_progress(channel):
             progress = fetch_player_progress(ra_username, challenge['game_id'])
 
             if progress:
-                num_achieved = progress['NumAchievedHardcore']
-                total_achievements = progress['NumPossibleAchievements']
-                score_achieved = progress['ScoreAchievedHardcore']
-                possible_score = progress['PossibleScore']
+                num_achieved = progress.get('NumAchievedHardcore', 0)
+                total_achievements = progress.get('NumPossibleAchievements', 0)
+                score_achieved = progress.get('ScoreAchievedHardcore', 0)
+                possible_score = progress.get('PossibleScore', 0)
                 progress_percentage = (num_achieved / total_achievements) * 100 if total_achievements > 0 else 0
 
                 if score_achieved > champion_score:
@@ -103,24 +105,33 @@ async def check_challenge_progress(channel):
 
         await channel.send(embed=embed)
 
-        await finish_challenge(challenge['id'])
+        finish_challenge(challenge['id'])
 
 async def updated_challenge(message):
     new_challenge = get_random_challenge()
-    updated = update_challenge(new_challenge)
+    
+    if new_challenge:
+        updated = update_challenge(new_challenge)
 
-    if updated:
-        embed = discord.Embed(
-            title = "⚙️ Desafio Atualizado!",
-            description = "Um novo desafio foi gerado com sucesso! Confira as informações atualizadas abaixo.",
-            color = discord.Color.blue()
-        )
-        # Pega o novo desafio para exibir informações atualizadas
-        new_challenge = get_current_challenge()
-        embed.add_field(name = "Console", value = new_challenge['console_name'], inline=False)
-        embed.add_field(name = "Jogo", value = new_challenge['game_name'], inline=False)
-        embed.set_thumbnail(url = new_challenge['console_image_url'])
-        embed.set_image(url = new_challenge['game_image_url'])
-        await message.channel.send(embed = embed)
+        if updated:
+            current_challenge = get_current_challenge()
+            
+            if current_challenge:
+                embed = discord.Embed(
+                    title="⚙️ Desafio Atualizado!",
+                    url=f"https://retroachievements.org/game/{current_challenge['game_id']}",
+                    description="Um novo desafio foi gerado com sucesso!",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name="Console", value=current_challenge['console_name'], inline=False)
+                embed.add_field(name="Jogo", value=current_challenge['game_name'], inline=False)
+                embed.set_thumbnail(url=current_challenge['console_image_url'])
+                embed.set_image(url=current_challenge['game_image_url'])
+                
+                await message.channel.send(embed=embed)
+            else:
+                await message.channel.send("Não foi possível recuperar o novo desafio. Tente novamente mais tarde.")
+        else:
+            await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
     else:
-        await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
+        await message.channel.send("Não foi possível obter um novo desafio no momento. Tente novamente mais tarde.")
