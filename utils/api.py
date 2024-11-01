@@ -116,3 +116,11 @@ def get_last_game_played(username):
         'c': 1  # Pegando apenas o último jogo jogado
     }
     return call_ra_api(endpoint, params)
+
+# Funçao para consultar as premições do jogador.
+def get_awards(username):
+    endpoint = "API_GetUserAwards.php"
+    params = {
+        'u': username
+    }
+    return call_ra_api(endpoint, params)
