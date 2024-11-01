@@ -32,5 +32,5 @@ async def send_profile_embed(message, profile, ra_username):
 
     if profile.get("Motto"):
         embed.add_field(name="Motto", value=profile['Motto'], inline=False)
-    
+        
     await message.channel.send(embed=embed)

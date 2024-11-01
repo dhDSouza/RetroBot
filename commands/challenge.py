@@ -2,7 +2,7 @@ import discord
 
 from datetime import datetime
 from utils.api import get_random_challenge, fetch_player_progress
-from database.db import add_challenge, get_current_challenge, check_challenge_status, get_all_users, finish_challenge, update_challenge
+from database.db import add_challenge, get_current_challenge, check_challenge_status, get_participating_users, finish_challenge, get_ra_username, update_challenge, register_participation
 
 async def send_random_challenge(message):
     challenge = get_random_challenge()
@@ -10,10 +10,10 @@ async def send_random_challenge(message):
     if challenge:
 
         add_challenge(
-            challenge['console'], 
-            challenge['game'], 
-            challenge['game_id'], 
-            challenge['console_image_url'], 
+            challenge['console'],
+            challenge['game'],
+            challenge['game_id'],
+            challenge['console_image_url'],
             challenge['game_image_url']
         )
 
@@ -34,7 +34,7 @@ async def check_current_challenge(message):
     challenge = get_current_challenge()
 
     if challenge:
-        
+
         start_date = datetime.strptime(challenge['start_date'], '%Y-%m-%d %H:%M:%S.%f')
         end_date = datetime.strptime(challenge['end_date'], '%Y-%m-%d %H:%M:%S.%f')
 
@@ -56,7 +56,7 @@ async def check_current_challenge(message):
         await message.channel.send(embed=embed)
         return True
     else:
-        return False    
+        return False
 
 async def check_challenge_progress(channel):
     challenge = check_challenge_status()
@@ -70,13 +70,13 @@ async def check_challenge_progress(channel):
         embed.set_thumbnail(url=challenge['console_image_url'])
         embed.set_image(url=challenge['game_image_url'])
 
-        users = get_all_users()
+        users = get_participating_users(challenge['game_id'])
         champion = None
         champion_score = 0
         progress_details = []
 
         for user in users:
-            _, ra_username = user
+            ra_username = get_ra_username(user)
             progress = fetch_player_progress(ra_username, challenge['game_id'])
 
             if progress:
@@ -109,13 +109,13 @@ async def check_challenge_progress(channel):
 
 async def updated_challenge(message):
     new_challenge = get_random_challenge()
-    
+
     if new_challenge:
         updated = update_challenge(new_challenge)
 
         if updated:
             current_challenge = get_current_challenge()
-            
+
             if current_challenge:
                 embed = discord.Embed(
                     title="⚙️ Desafio Atualizado!",
@@ -127,7 +127,7 @@ async def updated_challenge(message):
                 embed.add_field(name="Jogo", value=current_challenge['game_name'], inline=False)
                 embed.set_thumbnail(url=current_challenge['console_image_url'])
                 embed.set_image(url=current_challenge['game_image_url'])
-                
+
                 await message.channel.send(embed=embed)
             else:
                 await message.channel.send("Não foi possível recuperar o novo desafio. Tente novamente mais tarde.")
@@ -135,3 +135,18 @@ async def updated_challenge(message):
             await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
     else:
         await message.channel.send("Não foi possível obter um novo desafio no momento. Tente novamente mais tarde.")
+
+async def participate_challenge(message, discord_id):
+    ra_username = get_ra_username(discord_id)
+
+    if ra_username:
+        current_challenge = get_current_challenge()
+
+        if current_challenge:
+            register_participation(discord_id, current_challenge['id'])
+
+            await message.channel.send(f"Registrada participação de {ra_username} no desafio!")
+        else:
+            await message.channel.send("Não foi possível encontrar um desafio. Tente novamente mais tarde.")
+    else:
+        await message.channel.send("Não possível participar do desafio. Tente novamente mais tarde")
