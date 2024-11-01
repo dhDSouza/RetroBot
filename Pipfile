@@ -21,6 +21,7 @@ typing-extensions = "==4.12.2"
 urllib3 = "==2.2.3"
 yarl = "==1.12.1"
 pytz = "*"
+pillow = "*"
 
 [dev-packages]
 

@@ -2,7 +2,7 @@ import discord
 
 from datetime import datetime
 from utils.api import get_random_challenge, fetch_player_progress
-from database.db import add_challenge, get_current_challenge, check_challenge_status, get_all_users, finish_challenge, update_challenge
+from database.db import add_challenge, get_current_challenge, check_challenge_status, get_participating_users, finish_challenge, get_ra_username, update_challenge, register_participation
 
 async def send_random_challenge(message):
     challenge = get_random_challenge()
@@ -10,15 +10,16 @@ async def send_random_challenge(message):
     if challenge:
 
         add_challenge(
-            challenge['console'], 
-            challenge['game'], 
-            challenge['game_id'], 
-            challenge['console_image_url'], 
+            challenge['console'],
+            challenge['game'],
+            challenge['game_id'],
+            challenge['console_image_url'],
             challenge['game_image_url']
         )
 
         embed = discord.Embed(
             title="🎮 Desafio RetroAchievements!",
+            url=f"https://retroachievements.org/game/{challenge['game_id']}",
             description=f"Console sorteado: **{challenge['console']}**",
             color=discord.Color.green()
         )
@@ -33,7 +34,7 @@ async def check_current_challenge(message):
     challenge = get_current_challenge()
 
     if challenge:
-        
+
         start_date = datetime.strptime(challenge['start_date'], '%Y-%m-%d %H:%M:%S.%f')
         end_date = datetime.strptime(challenge['end_date'], '%Y-%m-%d %H:%M:%S.%f')
 
@@ -42,7 +43,8 @@ async def check_current_challenge(message):
 
         embed = discord.Embed(
             title="🎮 Desafio!",
-            description=f"O desafio atual é para o jogo **{challenge['game_name']}** no console **{challenge['console_name']}**!",
+            url=f"https://retroachievements.org/game/{challenge['game_id']}",
+            description=f"O desafio atual é o jogo **{challenge['game_name']}** do console **{challenge['console_name']}**!",
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=challenge['console_image_url'])
@@ -54,7 +56,7 @@ async def check_current_challenge(message):
         await message.channel.send(embed=embed)
         return True
     else:
-        return False    
+        return False
 
 async def check_challenge_progress(channel):
     challenge = check_challenge_status()
@@ -68,20 +70,20 @@ async def check_challenge_progress(channel):
         embed.set_thumbnail(url=challenge['console_image_url'])
         embed.set_image(url=challenge['game_image_url'])
 
-        users = get_all_users()
+        users = get_participating_users(challenge['game_id'])
         champion = None
         champion_score = 0
         progress_details = []
 
         for user in users:
-            _, ra_username = user
+            ra_username = get_ra_username(user)
             progress = fetch_player_progress(ra_username, challenge['game_id'])
 
             if progress:
-                num_achieved = progress['NumAchievedHardcore']
-                total_achievements = progress['NumPossibleAchievements']
-                score_achieved = progress['ScoreAchievedHardcore']
-                possible_score = progress['PossibleScore']
+                num_achieved = progress.get('NumAchievedHardcore', 0)
+                total_achievements = progress.get('NumPossibleAchievements', 0)
+                score_achieved = progress.get('ScoreAchievedHardcore', 0)
+                possible_score = progress.get('PossibleScore', 0)
                 progress_percentage = (num_achieved / total_achievements) * 100 if total_achievements > 0 else 0
 
                 if score_achieved > champion_score:
@@ -103,24 +105,48 @@ async def check_challenge_progress(channel):
 
         await channel.send(embed=embed)
 
-        await finish_challenge(challenge['id'])
+        finish_challenge(challenge['id'])
 
 async def updated_challenge(message):
     new_challenge = get_random_challenge()
-    updated = update_challenge(new_challenge)
 
-    if updated:
-        embed = discord.Embed(
-            title = "⚙️ Desafio Atualizado!",
-            description = "Um novo desafio foi gerado com sucesso! Confira as informações atualizadas abaixo.",
-            color = discord.Color.blue()
-        )
-        # Pega o novo desafio para exibir informações atualizadas
-        new_challenge = get_current_challenge()
-        embed.add_field(name = "Console", value = new_challenge['console_name'], inline=False)
-        embed.add_field(name = "Jogo", value = new_challenge['game_name'], inline=False)
-        embed.set_thumbnail(url = new_challenge['console_image_url'])
-        embed.set_image(url = new_challenge['game_image_url'])
-        await message.channel.send(embed = embed)
+    if new_challenge:
+        updated = update_challenge(new_challenge)
+
+        if updated:
+            current_challenge = get_current_challenge()
+
+            if current_challenge:
+                embed = discord.Embed(
+                    title="⚙️ Desafio Atualizado!",
+                    url=f"https://retroachievements.org/game/{current_challenge['game_id']}",
+                    description="Um novo desafio foi gerado com sucesso!",
+                    color=discord.Color.blue()
+                )
+                embed.add_field(name="Console", value=current_challenge['console_name'], inline=False)
+                embed.add_field(name="Jogo", value=current_challenge['game_name'], inline=False)
+                embed.set_thumbnail(url=current_challenge['console_image_url'])
+                embed.set_image(url=current_challenge['game_image_url'])
+
+                await message.channel.send(embed=embed)
+            else:
+                await message.channel.send("Não foi possível recuperar o novo desafio. Tente novamente mais tarde.")
+        else:
+            await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
     else:
-        await message.channel.send("Não foi possível atualizar o desafio no momento. Tente novamente mais tarde.")
+        await message.channel.send("Não foi possível obter um novo desafio no momento. Tente novamente mais tarde.")
+
+async def participate_challenge(message, discord_id):
+    ra_username = get_ra_username(discord_id)
+
+    if ra_username:
+        current_challenge = get_current_challenge()
+
+        if current_challenge:
+            register_participation(discord_id, current_challenge['id'])
+
+            await message.channel.send(f"Registrada participação de {ra_username} no desafio!")
+        else:
+            await message.channel.send("Não foi possível encontrar um desafio. Tente novamente mais tarde.")
+    else:
+        await message.channel.send("Não possível participar do desafio. Tente novamente mais tarde")
