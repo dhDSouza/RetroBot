@@ -40,9 +40,6 @@ async def fetch_user_awards(message, discord_user):
         await message.channel.send("Não foi possível buscar seus troféus no momento. Tente novamente mais tarde.")    
     
 async def create_awards_mosaics(message, mastery_games, beaten_games, site_awards, username):
-    # Remover prêmios duplicados de beaten_games que também estão em mastery_games
-    mastery_ids = {award['AwardData'] for award in mastery_games}
-    beaten_games = [award for award in beaten_games if award['AwardData'] not in mastery_ids]
     
     # Definindo tamanho do mosaico
     tile_size = 100         # Tamanho de cada ícone
